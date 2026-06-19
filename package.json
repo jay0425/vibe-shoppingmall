@@ -4,12 +4,13 @@
   "private": true,
   "packageManager": "pnpm@10.32.1",
   "scripts": {
-    "build": "pnpm --filter shopping-mall-server build",
+    "build": "pnpm --filter shopping-mall-client build && pnpm --filter shopping-mall-server build",
+    "dev:client": "pnpm --filter shopping-mall-client dev",
     "dev:server": "pnpm --filter shopping-mall-server dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "pnpm --filter shopping-mall-server lint",
-    "typecheck": "pnpm --filter shopping-mall-server typecheck"
+    "lint": "pnpm --filter shopping-mall-client lint && pnpm --filter shopping-mall-server lint",
+    "typecheck": "pnpm --filter shopping-mall-client typecheck && pnpm --filter shopping-mall-server typecheck"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
