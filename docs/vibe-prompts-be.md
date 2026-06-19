@@ -7,5 +7,6 @@
    password 필수
    user_type 필수, customer (customer, admin)
    address 필수 아님
-
-이런 스키마를 timestamp 기능과 함께 만들어줘
+   이런 스키마를 timestamp 기능과 함께 만들어줘
+5. 이 스키마를 참고해서 유저 데이터를 CRUD하는 라우터를 만들어줘
+6.
