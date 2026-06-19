@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@10.32.1",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint . --max-warnings=0",
@@ -26,10 +26,18 @@
     "@types/express": "^4.17.21",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.10.7",
+    "nodemon": "^3.1.14",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": "ts,json",
+    "exec": "tsx src/server.ts"
   }
 }

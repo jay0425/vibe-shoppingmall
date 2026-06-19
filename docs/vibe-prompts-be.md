@@ -9,4 +9,4 @@
    address 필수 아님
    이런 스키마를 timestamp 기능과 함께 만들어줘
 5. 이 스키마를 참고해서 유저 데이터를 CRUD하는 라우터를 만들어줘
-6.
+6. server/src/controllers/user.controller.ts : 유저 정보 생성할 때 패스워드는 암호화해서 저장해줘
