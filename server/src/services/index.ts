@@ -4,6 +4,7 @@ export {
   deleteUserData,
   getUserById,
   getUserList,
+  loginUserData,
   updateUserData,
   type UserPayload,
 } from './user.service.js';
