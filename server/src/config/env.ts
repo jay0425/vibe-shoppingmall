@@ -7,6 +7,7 @@ type Env = {
   port: number;
   mongoUri: string;
   corsOrigins: string[];
+  jwtSecret: string;
 };
 
 const DEFAULT_MONGO_URI = 'mongodb://127.0.0.1:27017/shopping-mall';
@@ -57,6 +58,18 @@ const parseMongoUri = (value: string | undefined, nodeEnv: NodeEnv): string => {
   return DEFAULT_MONGO_URI;
 };
 
+const parseJwtSecret = (value: string | undefined, nodeEnv: NodeEnv): string => {
+  if (value) {
+    return value;
+  }
+
+  if (nodeEnv === 'production') {
+    return requireEnv('JWT_SECRET');
+  }
+
+  return 'shopping-mall-development-jwt-secret';
+};
+
 const nodeEnv = parseNodeEnv(process.env.NODE_ENV);
 
 export const env: Env = {
@@ -64,4 +77,5 @@ export const env: Env = {
   port: parsePort(process.env.PORT),
   mongoUri: parseMongoUri(process.env.MONGODB_URI, nodeEnv),
   corsOrigins: parseCorsOrigins(process.env.CORS_ORIGIN),
+  jwtSecret: parseJwtSecret(process.env.JWT_SECRET, nodeEnv),
 };

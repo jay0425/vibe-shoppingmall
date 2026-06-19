@@ -6,12 +6,15 @@ import {
   deleteUserData,
   getUserById,
   getUserList,
+  loginUserData,
   updateUserData,
   type UserPayload,
 } from '../services/index.js';
-import { asyncHandler, HttpError } from '../utils/index.js';
+import { env } from '../config/env.js';
+import { asyncHandler, HttpError, signJwt } from '../utils/index.js';
 
 const userFields = ['email', 'name', 'password', 'user_type', 'address'] as const;
+const ACCESS_TOKEN_EXPIRES_IN_SECONDS = 60 * 60 * 24;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -41,6 +44,41 @@ const validateUserId = (id: string) => {
   }
 };
 
+const pickLoginPayload = (body: unknown) => {
+  if (!isRecord(body)) {
+    throw new HttpError(400, '이메일과 비밀번호를 입력해주세요.');
+  }
+
+  const { email, password } = body;
+
+  if (typeof email !== 'string' || email.trim() === '') {
+    throw new HttpError(400, '이메일을 입력해주세요.');
+  }
+
+  if (typeof password !== 'string' || password === '') {
+    throw new HttpError(400, '비밀번호를 입력해주세요.');
+  }
+
+  return {
+    email,
+    password,
+  };
+};
+
+const serializeUser = (user: {
+  _id: unknown;
+  email: string;
+  name: string;
+  user_type: string;
+  address?: string | null;
+}) => ({
+  id: String(user._id),
+  email: user.email,
+  name: user.name,
+  user_type: user.user_type,
+  address: user.address,
+});
+
 export const getUsers: RequestHandler = asyncHandler(async (_req, res) => {
   const users = await getUserList();
 
@@ -62,6 +100,33 @@ export const createUser: RequestHandler = asyncHandler(async (req, res) => {
   const user = await createUserData(pickUserPayload(req.body));
 
   res.status(201).json(user);
+});
+
+export const loginUser: RequestHandler = asyncHandler(async (req, res) => {
+  const { email, password } = pickLoginPayload(req.body);
+  const user = await loginUserData(email, password);
+
+  if (!user) {
+    throw new HttpError(401, '이메일 또는 비밀번호가 올바르지 않습니다.');
+  }
+
+  const accessToken = signJwt(
+    {
+      sub: String(user._id),
+      email: user.email,
+      user_type: user.user_type,
+    },
+    env.jwtSecret,
+    ACCESS_TOKEN_EXPIRES_IN_SECONDS,
+  );
+
+  res.json({
+    message: '로그인에 성공했습니다.',
+    accessToken,
+    tokenType: 'Bearer',
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN_SECONDS,
+    user: serializeUser(user),
+  });
 });
 
 export const updateUser: RequestHandler = asyncHandler(async (req, res) => {

@@ -1,4 +1,4 @@
-import { randomBytes, scrypt } from 'node:crypto';
+import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 
 import { UserModel } from '../models/index.js';
@@ -24,6 +24,22 @@ const hashPassword = async (password: string) => {
   return `scrypt:${salt}:${derivedKey.toString('hex')}`;
 };
 
+const verifyPassword = async (password: string, hashedPassword: string) => {
+  const [algorithm, salt, storedKey] = hashedPassword.split(':');
+
+  if (algorithm !== 'scrypt' || !salt || !storedKey) {
+    return false;
+  }
+
+  const storedKeyBuffer = Buffer.from(storedKey, 'hex');
+  const derivedKey = await scryptAsync(password, salt, storedKeyBuffer.length);
+
+  return (
+    storedKeyBuffer.length === derivedKey.length &&
+    timingSafeEqual(storedKeyBuffer, derivedKey)
+  );
+};
+
 const hashPasswordInPayload = async (payload: UserPayload): Promise<UserPayload> => {
   if (!payload.password) {
     return payload;
@@ -38,6 +54,18 @@ const hashPasswordInPayload = async (payload: UserPayload): Promise<UserPayload>
 export const getUserList = async () => UserModel.find().sort({ createdAt: -1 });
 
 export const getUserById = async (id: string) => UserModel.findById(id);
+
+export const loginUserData = async (email: string, password: string) => {
+  const user = await UserModel.findOne({ email: email.trim().toLowerCase() });
+
+  if (!user) {
+    return null;
+  }
+
+  const isPasswordValid = await verifyPassword(password, user.password);
+
+  return isPasswordValid ? user : null;
+};
 
 export const createUserData = async (payload: UserPayload) =>
   UserModel.create(await hashPasswordInPayload(payload));
