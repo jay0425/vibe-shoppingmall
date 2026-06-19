@@ -11,7 +11,7 @@ import {
   type UserPayload,
 } from '../services/index.js';
 import { env } from '../config/env.js';
-import { asyncHandler, HttpError, signJwt } from '../utils/index.js';
+import { asyncHandler, HttpError, signJwt, verifyJwt } from '../utils/index.js';
 
 const userFields = ['email', 'name', 'password', 'user_type', 'address'] as const;
 const ACCESS_TOKEN_EXPIRES_IN_SECONDS = 60 * 60 * 24;
@@ -63,6 +63,20 @@ const pickLoginPayload = (body: unknown) => {
     email,
     password,
   };
+};
+
+const pickBearerToken = (authorization: string | undefined) => {
+  if (!authorization) {
+    throw new HttpError(401, '인증 토큰이 필요합니다.');
+  }
+
+  const [tokenType, token] = authorization.split(' ');
+
+  if (tokenType !== 'Bearer' || !token) {
+    throw new HttpError(401, '유효하지 않은 인증 토큰입니다.');
+  }
+
+  return token;
 };
 
 const serializeUser = (user: {
@@ -127,6 +141,24 @@ export const loginUser: RequestHandler = asyncHandler(async (req, res) => {
     expiresIn: ACCESS_TOKEN_EXPIRES_IN_SECONDS,
     user: serializeUser(user),
   });
+});
+
+export const getMe: RequestHandler = asyncHandler(async (req, res) => {
+  const token = pickBearerToken(req.headers.authorization);
+  const payload = verifyJwt(token, env.jwtSecret);
+
+  if (!payload || typeof payload.sub !== 'string') {
+    throw new HttpError(401, '유효하지 않은 인증 토큰입니다.');
+  }
+
+  validateUserId(payload.sub);
+
+  const user = await getUserById(payload.sub);
+  if (!user) {
+    throw new HttpError(404, '유저를 찾을 수 없습니다.');
+  }
+
+  res.json(serializeUser(user));
 });
 
 export const updateUser: RequestHandler = asyncHandler(async (req, res) => {
