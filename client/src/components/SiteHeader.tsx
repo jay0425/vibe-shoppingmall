@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Heart, Menu, Search, ShoppingBag, User, X } from '@/lib/lucide-react';
 import { useCart } from '@/components/CartProvider';
 import { categories } from '@/lib/data';
-import { useAuthStore } from '@/entities/user';
+import { getMe, useAuthStore } from '@/entities/user';
 import { useLogout } from '@/features/logout';
 
 export function SiteHeader() {
@@ -14,6 +15,12 @@ export function SiteHeader() {
   const session = useAuthStore((state) => state.session);
   const hydrateAuth = useAuthStore((state) => state.hydrateAuth);
   const logout = useLogout();
+  const { data: me } = useQuery({
+    queryKey: ['me', session?.accessToken],
+    queryFn: () => getMe(session?.accessToken ?? ''),
+    enabled: Boolean(session?.accessToken),
+  });
+  const displayName = me?.name ?? session?.user.name;
 
   useEffect(() => {
     hydrateAuth();
@@ -49,13 +56,20 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-3 text-foreground">
           {session ? (
-            <button
-              type="button"
-              onClick={logout}
-              className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
-            >
-              로그아웃
-            </button>
+            <>
+              {displayName && (
+                <span className="hidden max-w-40 truncate text-sm text-muted-foreground lg:block">
+                  {displayName}님 반갑습니다.
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={logout}
+                className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
+              >
+                로그아웃
+              </button>
+            </>
           ) : (
             <Link
               href="/login"

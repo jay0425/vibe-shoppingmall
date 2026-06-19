@@ -1,4 +1,4 @@
-export { createUser, getUsers, loginUser } from './api';
+export { createUser, getMe, getUsers, loginUser } from './api';
 export { useAuthStore } from './model';
 export type {
   AuthSession,

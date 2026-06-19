@@ -4,6 +4,13 @@ import type { CreateUserPayload, LoginUserPayload, LoginUserResponse, User } fro
 
 export const getUsers = (): Promise<User[]> => httpClient<User[]>('/api/users');
 
+export const getMe = (accessToken: string): Promise<User> =>
+  httpClient<User>('/api/users/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
 export const createUser = (payload: CreateUserPayload): Promise<User> =>
   httpClient<User>('/api/users', {
     method: 'POST',
