@@ -10,8 +10,6 @@ type Env = {
   jwtSecret: string;
 };
 
-const DEFAULT_MONGO_URI = 'mongodb://127.0.0.1:27017/shopping-mall';
-
 const parsePort = (value: string | undefined): number => {
   const port = Number(value ?? 4000);
 
@@ -30,10 +28,14 @@ const parseNodeEnv = (value: string | undefined): NodeEnv => {
   return 'development';
 };
 
-const parseCorsOrigins = (value: string | undefined): string[] => {
-  const origins = value?.split(',').map((origin) => origin.trim()) ?? ['http://localhost:3000'];
+const parseCorsOrigins = (value: string): string[] => {
+  const origins = value.split(',').map((origin) => origin.trim());
 
-  return origins.filter(Boolean);
+  if (origins.length === 0 || origins.some((origin) => origin === '')) {
+    throw new Error('CORS_ORIGIN은 하나 이상의 origin이어야 합니다.');
+  }
+
+  return origins;
 };
 
 const requireEnv = (key: string): string => {
@@ -46,28 +48,12 @@ const requireEnv = (key: string): string => {
   return value;
 };
 
-const parseMongoUri = (value: string | undefined, nodeEnv: NodeEnv): string => {
-  if (value) {
-    return value;
+const parseJwtSecret = (value: string): string => {
+  if (value.length < 32) {
+    throw new Error('JWT_SECRET은 32자 이상이어야 합니다.');
   }
 
-  if (nodeEnv === 'production') {
-    return requireEnv('MONGODB_URI');
-  }
-
-  return DEFAULT_MONGO_URI;
-};
-
-const parseJwtSecret = (value: string | undefined, nodeEnv: NodeEnv): string => {
-  if (value) {
-    return value;
-  }
-
-  if (nodeEnv === 'production') {
-    return requireEnv('JWT_SECRET');
-  }
-
-  return 'shopping-mall-development-jwt-secret';
+  return value;
 };
 
 const nodeEnv = parseNodeEnv(process.env.NODE_ENV);
@@ -75,7 +61,7 @@ const nodeEnv = parseNodeEnv(process.env.NODE_ENV);
 export const env: Env = {
   nodeEnv,
   port: parsePort(process.env.PORT),
-  mongoUri: parseMongoUri(process.env.MONGODB_URI, nodeEnv),
-  corsOrigins: parseCorsOrigins(process.env.CORS_ORIGIN),
-  jwtSecret: parseJwtSecret(process.env.JWT_SECRET, nodeEnv),
+  mongoUri: requireEnv('MONGODB_URI'),
+  corsOrigins: parseCorsOrigins(requireEnv('CORS_ORIGIN')),
+  jwtSecret: parseJwtSecret(requireEnv('JWT_SECRET')),
 };

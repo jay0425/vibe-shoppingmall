@@ -82,7 +82,7 @@ const serializeUser = (user: {
 export const getUsers: RequestHandler = asyncHandler(async (_req, res) => {
   const users = await getUserList();
 
-  res.json(users);
+  res.json(users.map(serializeUser));
 });
 
 export const getUser: RequestHandler = asyncHandler(async (req, res) => {
@@ -93,13 +93,13 @@ export const getUser: RequestHandler = asyncHandler(async (req, res) => {
     throw new HttpError(404, '유저를 찾을 수 없습니다.');
   }
 
-  res.json(user);
+  res.json(serializeUser(user));
 });
 
 export const createUser: RequestHandler = asyncHandler(async (req, res) => {
   const user = await createUserData(pickUserPayload(req.body));
 
-  res.status(201).json(user);
+  res.status(201).json(serializeUser(user));
 });
 
 export const loginUser: RequestHandler = asyncHandler(async (req, res) => {
@@ -138,7 +138,7 @@ export const updateUser: RequestHandler = asyncHandler(async (req, res) => {
     throw new HttpError(404, '유저를 찾을 수 없습니다.');
   }
 
-  res.json(user);
+  res.json(serializeUser(user));
 });
 
 export const deleteUser: RequestHandler = asyncHandler(async (req, res) => {

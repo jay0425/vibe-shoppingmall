@@ -1,2 +1,10 @@
-export { createUser, getUsers } from './api';
-export type { CreateUserPayload, User } from './model';
+export { createUser, getUsers, loginUser } from './api';
+export { useAuthStore } from './model';
+export type {
+  AuthSession,
+  AuthUser,
+  CreateUserPayload,
+  LoginUserPayload,
+  LoginUserResponse,
+  User,
+} from './model';
