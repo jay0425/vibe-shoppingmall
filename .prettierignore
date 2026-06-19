@@ -1,0 +1,7 @@
+dist
+node_modules
+coverage
+.next
+.pnpm-store
+pnpm-lock.yaml
+server/pnpm-lock.yaml

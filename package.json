@@ -1,0 +1,21 @@
+{
+  "name": "wearjoy",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "build": "pnpm --filter shopping-mall-server build",
+    "dev:server": "pnpm --filter shopping-mall-server dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "pnpm --filter shopping-mall-server lint",
+    "typecheck": "pnpm --filter shopping-mall-server typecheck"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.5.3",
+    "typescript-eslint": "^8.34.1"
+  }
+}
