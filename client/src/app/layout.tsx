@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 import { CartProvider } from '@/components/CartProvider';
+import { QueryProvider } from '@/providers';
 
 export const metadata: Metadata = {
   title: 'milkcocoa — 데일리 여성 패션',
@@ -44,7 +45,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className="bg-background">
       <body className="font-sans antialiased">
-        <CartProvider>{children}</CartProvider>
+        <QueryProvider>
+          <CartProvider>{children}</CartProvider>
+        </QueryProvider>
       </body>
     </html>
   );
