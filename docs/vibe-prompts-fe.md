@@ -2,6 +2,7 @@
 
 1. 첨부한 컨벤션 참고해서 /client 폴더에 next.js, tailwindCSS, ts, tanstack-query,pnpm 조합으로 프로젝트 환경 셋팅 해줘.
 2. /client 폴더 안에 app, components, lib, public 폴더들 다른 곳에서 복붙해왔어. 첨부한 컨벤션 내용 참고해서 여기 프로젝트에 맞게 수정해줘.
+<<<<<<< Updated upstream
 
 # 기능 연결
 
@@ -50,3 +51,11 @@ client/src/app/signup/page.tsx
 위의 경로의 페이지에 첨부한 서버코드를 참고해서 로그인 기능을 연동해줘. 기존 FSD 폴더 구조 지켜서 만들어줘. 그리고 로그아웃 기능도 만들어줘.
 
 5. client/src/app/page.tsx : 메인 페이지에서 토큰이 있으면 토큰을 가지고 유저 정보를 가져와서 우측 상단에 name님 반갑습니다. 메시지를 보여줘
+=======
+3. admin/products/new 여기 페이지에 상품 등록 API를 연결해줘.
+4. client/src/app/admin/products/page.tsx : 상품 리스트 조회 API 연결해줘
+5. 이미지 추가를 cloudinary 위젯을 이용해서 업데이트 하고 싶어, 그리고 사진 업데이트 하면 미리보기로 볼 수 있게 하고 싶어.
+6. .env에 클라우드 네임, 프리셋 값 넣음...
+7. client/src/app/admin/products/page.tsx : 페이지네이션 버튼을 추가해서 페이지네이션 기능을 붙여 만들고 싶어. 한 페이지당 10 개씩 데이터 조회 시키고 싶어.
+   페이지네이션 ui 컴포넌트 따로 파일분리해서 만들어 주고 그걸 가져다 이 페이지에서 조회 API 연결해서 10개 씩 보이게끔 만들어줘
+>>>>>>> Stashed changes

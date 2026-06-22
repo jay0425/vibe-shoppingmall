@@ -3,40 +3,155 @@
 import type React from 'react';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ImagePlus, X } from '@/lib/lucide-react';
+import Script from 'next/script';
 import { AdminTopbar } from '@/components/admin/AdminTopbar';
 import { Button } from '@/components/ui/Button';
-import { categories } from '@/lib/data';
+import { ImagePlus } from '@/lib/lucide-react';
 
 const fieldClass =
   'h-11 w-full rounded-md border border-input bg-card px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ?? 'http://localhost:4000';
+const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+type CloudinaryUploadResult = {
+  event: string;
+  info?: {
+    secure_url?: string;
+  };
+};
+
+type CloudinaryWidget = {
+  open: () => void;
+};
+
+declare global {
+  interface Window {
+    cloudinary?: {
+      createUploadWidget: (
+        options: {
+          cloudName: string;
+          uploadPreset: string;
+          sources?: string[];
+          multiple?: boolean;
+          cropping?: boolean;
+          resourceType?: string;
+          clientAllowedFormats?: string[];
+          maxFileSize?: number;
+        },
+        callback: (error: Error | null, result: CloudinaryUploadResult) => void,
+      ) => CloudinaryWidget;
+    };
+  }
+}
+
+const productCategories = [
+  { value: 'top', label: '상의' },
+  { value: 'bottom', label: '하의' },
+  { value: 'accessory', label: '액세서리' },
+];
+
+const getFormValue = (formData: FormData, key: string) => {
+  const value = formData.get(key);
+  return typeof value === 'string' ? value.trim() : '';
+};
+
 export default function NewProductPage() {
   const router = useRouter();
-  const [sizes, setSizes] = useState<string[]>(['S', 'M', 'L']);
-  const [colors, setColors] = useState<string[]>(['크림', '베이지']);
-  const [colorInput, setColorInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [isCloudinaryReady, setIsCloudinaryReady] = useState(false);
 
-  const allSizes = ['FREE', 'S', 'M', 'L', 'XL'];
-
-  function toggleSize(s: string) {
-    setSizes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
-  }
-
-  function addColor() {
-    const v = colorInput.trim();
-    if (v && !colors.includes(v)) setColors((prev) => [...prev, v]);
-    setColorInput('');
-  }
-
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    router.push('/admin/products');
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    const payload = {
+      sku: getFormValue(formData, 'sku'),
+      name: getFormValue(formData, 'name'),
+      price: Number(getFormValue(formData, 'price')),
+      category: getFormValue(formData, 'category'),
+      image: getFormValue(formData, 'image'),
+      description: getFormValue(formData, 'description') || undefined,
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { message?: string } | null;
+        throw new Error(data?.message ?? '상품 등록에 실패했습니다.');
+      }
+
+      router.push('/admin/products');
+      router.refresh();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '상품 등록에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function openCloudinaryWidget() {
+    setErrorMessage('');
+
+    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+      setErrorMessage(
+        'Cloudinary 설정이 필요합니다. NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET 값을 설정해주세요.',
+      );
+      return;
+    }
+
+    if (!window.cloudinary || !isCloudinaryReady) {
+      setErrorMessage('Cloudinary 업로드 위젯을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: CLOUDINARY_CLOUD_NAME,
+        uploadPreset: CLOUDINARY_UPLOAD_PRESET,
+        sources: ['local', 'url', 'camera'],
+        multiple: false,
+        cropping: false,
+        resourceType: 'image',
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        maxFileSize: 5_000_000,
+      },
+      (error, result) => {
+        if (error) {
+          setErrorMessage('이미지 업로드에 실패했습니다.');
+          return;
+        }
+
+        if (result.event === 'success' && result.info?.secure_url) {
+          setImageUrl(result.info.secure_url);
+        }
+      },
+    );
+
+    widget.open();
   }
 
   return (
     <>
+      <Script
+        src="https://widget.cloudinary.com/v2.0/global/all.js"
+        strategy="afterInteractive"
+        onLoad={() => setIsCloudinaryReady(true)}
+      />
       <AdminTopbar title="상품 등록" subtitle="새로운 상품 정보를 입력하세요" />
       <form onSubmit={handleSubmit} className="flex-1 p-5 md:p-8">
         <div className="grid gap-6 lg:grid-cols-3">
@@ -45,16 +160,36 @@ export default function NewProductPage() {
               <h2 className="mb-4 font-medium">기본 정보</h2>
               <div className="grid gap-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">상품명</label>
-                  <input required placeholder="예) 코튼 러플 블라우스" className={fieldClass} />
+                  <label htmlFor="sku" className="text-sm font-medium">
+                    SKU
+                  </label>
+                  <input
+                    id="sku"
+                    name="sku"
+                    required
+                    placeholder="예) TOP-001"
+                    className={fieldClass}
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">영문 상품명</label>
-                  <input placeholder="예) Cotton Ruffle Blouse" className={fieldClass} />
+                  <label htmlFor="name" className="text-sm font-medium">
+                    상품명
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    required
+                    placeholder="예) 코튼 러플 블라우스"
+                    className={fieldClass}
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">상품 설명</label>
+                  <label htmlFor="description" className="text-sm font-medium">
+                    상품 설명
+                  </label>
                   <textarea
+                    id="description"
+                    name="description"
                     rows={4}
                     placeholder="상품에 대한 간단한 설명을 입력하세요"
                     className="w-full rounded-md border border-input bg-card p-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
@@ -64,140 +199,120 @@ export default function NewProductPage() {
             </section>
 
             <section className="rounded-lg border border-border bg-card p-5">
-              <h2 className="mb-4 font-medium">가격 및 재고</h2>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <h2 className="mb-4 font-medium">가격</h2>
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">판매가 (원)</label>
-                  <input required type="number" placeholder="39000" className={fieldClass} />
+                  <label htmlFor="price" className="text-sm font-medium">
+                    판매가 (원)
+                  </label>
+                  <input
+                    id="price"
+                    name="price"
+                    required
+                    type="number"
+                    min="0"
+                    placeholder="39000"
+                    className={fieldClass}
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">정가 (원)</label>
-                  <input type="number" placeholder="52000" className={fieldClass} />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">재고 수량</label>
-                  <input required type="number" placeholder="100" className={fieldClass} />
+                  <label htmlFor="category" className="text-sm font-medium">
+                    카테고리
+                  </label>
+                  <select id="category" name="category" required className={fieldClass}>
+                    {productCategories.map((category) => (
+                      <option key={category.value} value={category.value}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </section>
 
             <section className="rounded-lg border border-border bg-card p-5">
-              <h2 className="mb-4 font-medium">옵션</h2>
-              <div className="mb-5">
-                <label className="mb-2 block text-sm font-medium">사이즈</label>
-                <div className="flex flex-wrap gap-2">
-                  {allSizes.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => toggleSize(s)}
-                      className={`rounded-md border px-4 py-2 text-sm transition-colors ${
-                        sizes.includes(s)
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'border-border hover:bg-muted'
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+              <h2 className="mb-4 font-medium">상품 이미지</h2>
+              <div className="grid gap-4">
+                <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md border border-dashed border-border bg-muted">
+                  {imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt="상품 이미지 미리보기"
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 66vw, 100vw"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                      <ImagePlus className="size-8" />
+                      <span>이미지를 업로드하면 미리보기가 표시됩니다.</span>
+                    </div>
+                  )}
                 </div>
+                <Button type="button" variant="outline" className="w-fit" onClick={openCloudinaryWidget}>
+                  <ImagePlus className="size-4" />
+                  이미지 업로드
+                </Button>
               </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium">컬러</label>
-                <div className="mb-2 flex flex-wrap gap-2">
-                  {colors.map((c) => (
-                    <span
-                      key={c}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm text-secondary-foreground"
-                    >
-                      {c}
-                      <button
-                        type="button"
-                        onClick={() => setColors((prev) => prev.filter((x) => x !== c))}
-                        aria-label={`${c} 삭제`}
-                      >
-                        <X className="size-3.5" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    value={colorInput}
-                    onChange={(e) => setColorInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addColor();
-                      }
-                    }}
-                    placeholder="컬러명 입력 후 추가"
-                    className={fieldClass}
-                  />
-                  <Button type="button" variant="outline" onClick={addColor}>
-                    추가
-                  </Button>
-                </div>
+
+              <div className="mt-4 flex flex-col gap-2">
+                <label htmlFor="image" className="text-sm font-medium">
+                  Cloudinary 이미지 URL
+                </label>
+                <input
+                  id="image"
+                  name="image"
+                  required
+                  type="url"
+                  value={imageUrl}
+                  onChange={(event) => setImageUrl(event.target.value)}
+                  placeholder="https://res.cloudinary.com/.../image/upload/product.png"
+                  className={fieldClass}
+                />
               </div>
             </section>
+
+            {errorMessage && (
+              <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {errorMessage}
+              </p>
+            )}
           </div>
 
           <div className="space-y-6">
             <section className="rounded-lg border border-border bg-card p-5">
-              <h2 className="mb-4 font-medium">상품 이미지</h2>
-              <div className="flex aspect-square flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border text-muted-foreground">
-                <ImagePlus className="size-8" />
-                <span className="text-sm">이미지를 업로드하세요</span>
-                <span className="text-xs">권장 1000 x 1000px</span>
+              <h2 className="mb-4 font-medium">등록 정보</h2>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <p>SKU는 상품마다 고유해야 합니다.</p>
+                <p>이미지는 Cloudinary 업로드 위젯으로 등록합니다.</p>
+                <p>설명은 비워둘 수 있습니다.</p>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="flex aspect-square items-center justify-center rounded-md border border-dashed border-border text-muted-foreground"
-                  >
-                    <ImagePlus className="size-4" />
+            </section>
+
+            <section className="rounded-lg border border-border bg-card p-5">
+              <h2 className="mb-4 font-medium">분류 기준</h2>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                {productCategories.map((category) => (
+                  <div key={category.value} className="flex items-center justify-between">
+                    <span>{category.label}</span>
+                    <code className="rounded bg-muted px-2 py-1 text-xs text-foreground">
+                      {category.value}
+                    </code>
                   </div>
                 ))}
               </div>
             </section>
 
-            <section className="rounded-lg border border-border bg-card p-5">
-              <h2 className="mb-4 font-medium">분류</h2>
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">카테고리</label>
-                  <select className={fieldClass}>
-                    {categories
-                      .filter((c) => !['all', 'best', 'new'].includes(c.slug))
-                      .map((c) => (
-                        <option key={c.slug} value={c.slug}>
-                          {c.label}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">뱃지</label>
-                  <select className={fieldClass}>
-                    <option value="">없음</option>
-                    <option value="NEW">NEW</option>
-                    <option value="BEST">BEST</option>
-                    <option value="SALE">SALE</option>
-                  </select>
-                </div>
-              </div>
-            </section>
-
             <div className="flex flex-col gap-2">
-              <Button type="submit" size="lg" className="w-full">
-                상품 등록
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? '등록 중...' : '상품 등록'}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 size="lg"
                 className="w-full"
+                disabled={isSubmitting}
                 onClick={() => router.push('/admin/products')}
               >
                 취소

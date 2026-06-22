@@ -11,6 +11,7 @@ const paths = {
   chart: 'M4 19V5M4 19h16M8 15l3-3 3 2 5-7',
   checkCircle: 'M9 12l2 2 4-5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
   chevronLeft: 'M15 18l-6-6 6-6',
+  chevronRight: 'M9 18l6-6-6-6',
   clipboard: 'M9 4h6M9 2h6v4H9zM6 5H4v17h16V5h-2',
   close: 'M18 6 6 18M6 6l12 12',
   eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
@@ -61,6 +62,7 @@ export const ArrowUpRight = createIcon('M7 17 17 7M7 7h10v10');
 export const Bell = createIcon(paths.bell);
 export const CheckCircle2 = createIcon(paths.checkCircle);
 export const ChevronLeft = createIcon(paths.chevronLeft);
+export const ChevronRight = createIcon(paths.chevronRight);
 export const ClipboardList = createIcon(paths.clipboard);
 export const Eye = createIcon(paths.eye);
 export const Heart = createIcon(paths.heart);
