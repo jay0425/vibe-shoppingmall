@@ -70,7 +70,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-        © 2026 milkcocoa. All rights reserved.
+        © 2026 wearjoy. All rights reserved.
       </div>
     </footer>
   );

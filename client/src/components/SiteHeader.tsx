@@ -1,14 +1,31 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { Heart, Menu, Search, ShoppingBag, User, X } from '@/lib/lucide-react';
 import { useCart } from '@/components/CartProvider';
 import { categories } from '@/lib/data';
+import { getMe, useAuthStore } from '@/entities/user';
+import { useLogout } from '@/features/logout';
 
 export function SiteHeader() {
   const { count } = useCart();
   const [open, setOpen] = useState(false);
+  const session = useAuthStore((state) => state.session);
+  const hydrateAuth = useAuthStore((state) => state.hydrateAuth);
+  const logout = useLogout();
+  const { data: me } = useQuery({
+    queryKey: ['me', session?.accessToken],
+    queryFn: () => getMe(session?.accessToken ?? ''),
+    enabled: Boolean(session?.accessToken),
+  });
+  const userType = me?.user_type ?? session?.user.user_type;
+  const displayName = userType === 'admin' ? '관리자' : (me?.name ?? session?.user.name);
+
+  useEffect(() => {
+    hydrateAuth();
+  }, [hydrateAuth]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
@@ -22,7 +39,7 @@ export function SiteHeader() {
 
         <Link href="/" className="flex items-baseline gap-1">
           <span className="font-heading text-2xl tracking-tight text-foreground">
-            milk<span className="text-accent-foreground">cocoa</span>
+            wear<span className="text-accent-foreground">joy</span>
           </span>
         </Link>
 
@@ -39,12 +56,29 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3 text-foreground">
-          <Link
-            href="/login"
-            className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
-          >
-            로그인
-          </Link>
+          {session ? (
+            <>
+              {displayName && (
+                <span className="hidden max-w-40 truncate text-sm text-muted-foreground lg:block">
+                  {displayName}님 반갑습니다.
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={logout}
+                className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
+            >
+              로그인
+            </Link>
+          )}
           <button aria-label="검색" className="hover:text-accent-foreground">
             <Search className="size-5" />
           </button>

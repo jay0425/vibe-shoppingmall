@@ -3,9 +3,10 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 import { CartProvider } from '@/components/CartProvider';
+import { QueryProvider } from '@/providers';
 
 export const metadata: Metadata = {
-  title: 'milkcocoa — 데일리 여성 패션',
+  title: 'wearjoy — 데일리 여성 패션',
   description:
     '부드럽고 우아한 데일리 여성 의류 셀렉트샵. 밀크코코아에서 당신의 무드를 완성하세요.',
   generator: 'v0.app',
@@ -44,7 +45,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className="bg-background">
       <body className="font-sans antialiased">
-        <CartProvider>{children}</CartProvider>
+        <QueryProvider>
+          <CartProvider>{children}</CartProvider>
+        </QueryProvider>
       </body>
     </html>
   );
