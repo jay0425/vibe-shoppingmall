@@ -8,6 +8,7 @@
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js",
+    "seed:products": "tsx src/scripts/seed-products.ts",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
