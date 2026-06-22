@@ -18,7 +18,7 @@ export function AdminSidebar() {
     <aside className="hidden w-60 shrink-0 border-r border-sidebar-border bg-sidebar md:flex md:flex-col">
       <div className="flex h-16 items-center border-b border-sidebar-border px-6">
         <Link href="/admin" className="font-heading text-xl tracking-tight text-sidebar-foreground">
-          milkcocoa <span className="text-xs font-sans text-muted-foreground">admin</span>
+          wearjoy <span className="text-xs font-sans text-muted-foreground">admin</span>
         </Link>
       </div>
       <nav className="flex flex-1 flex-col gap-1 p-3">

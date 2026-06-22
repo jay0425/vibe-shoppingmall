@@ -25,7 +25,7 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-const STORAGE_KEY = 'milkcocoa-cart';
+const STORAGE_KEY = 'wearjoy-cart';
 
 const seedItems: CartItem[] = [
   {

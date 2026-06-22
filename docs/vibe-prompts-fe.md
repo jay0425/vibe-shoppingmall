@@ -48,3 +48,5 @@ client/src/app/signup/page.tsx
 4. client/src/app/login/page.tsx
 
 위의 경로의 페이지에 첨부한 서버코드를 참고해서 로그인 기능을 연동해줘. 기존 FSD 폴더 구조 지켜서 만들어줘. 그리고 로그아웃 기능도 만들어줘.
+
+5. client/src/app/page.tsx : 메인 페이지에서 토큰이 있으면 토큰을 가지고 유저 정보를 가져와서 우측 상단에 name님 반갑습니다. 메시지를 보여줘
