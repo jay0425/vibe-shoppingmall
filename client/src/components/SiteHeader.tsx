@@ -20,7 +20,8 @@ export function SiteHeader() {
     queryFn: () => getMe(session?.accessToken ?? ''),
     enabled: Boolean(session?.accessToken),
   });
-  const displayName = me?.name ?? session?.user.name;
+  const userType = me?.user_type ?? session?.user.user_type;
+  const displayName = userType === 'admin' ? '관리자' : (me?.name ?? session?.user.name);
 
   useEffect(() => {
     hydrateAuth();
