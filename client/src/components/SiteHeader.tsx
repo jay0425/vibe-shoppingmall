@@ -38,7 +38,7 @@ export function SiteHeader() {
 
         <Link href="/" className="flex items-baseline gap-1">
           <span className="font-heading text-2xl tracking-tight text-foreground">
-            milk<span className="text-accent-foreground">cocoa</span>
+            wear<span className="text-accent-foreground">joy</span>
           </span>
         </Link>
 
