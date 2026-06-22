@@ -5,15 +5,18 @@ import { PRODUCT_CATEGORIES } from '../models/index.js';
 import {
   createProductData,
   deleteProductData,
+  getPaginatedProductList,
   getProductById,
   getProductBySku,
-  getProductList,
   updateProductData,
   type ProductPayload,
 } from '../services/index.js';
 import { asyncHandler, HttpError } from '../utils/index.js';
 
 const productFields = ['sku', 'name', 'price', 'category', 'image', 'description'] as const;
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -109,6 +112,19 @@ const validateProductId = (id: string) => {
   }
 };
 
+const parsePositiveInteger = (value: unknown, fallback: number, fieldLabel: string) => {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new HttpError(400, `${fieldLabel}는 양의 정수여야 합니다.`);
+  }
+
+  return parsed;
+};
+
 function validateRequiredProductPayload(
   payload: ProductPayload,
 ): asserts payload is ProductPayload & {
@@ -157,10 +173,20 @@ const serializeProduct = (product: {
   description: product.description,
 });
 
-export const getProducts: RequestHandler = asyncHandler(async (_req, res) => {
-  const products = await getProductList();
+export const getProducts: RequestHandler = asyncHandler(async (req, res) => {
+  const page = parsePositiveInteger(req.query.page, DEFAULT_PAGE, 'page');
+  const requestedLimit = parsePositiveInteger(req.query.limit, DEFAULT_LIMIT, 'limit');
+  const limit = Math.min(requestedLimit, MAX_LIMIT);
+  const { products, total } = await getPaginatedProductList({ page, limit });
+  const totalPages = Math.max(Math.ceil(total / limit), 1);
 
-  res.json(products.map(serializeProduct));
+  res.json({
+    items: products.map(serializeProduct),
+    total,
+    page,
+    limit,
+    totalPages,
+  });
 });
 
 export const getProduct: RequestHandler = asyncHandler(async (req, res) => {
