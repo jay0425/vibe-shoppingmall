@@ -1,2 +1,3 @@
 export { healthRouter } from './health.route.js';
+export { productRouter } from './product.route.js';
 export { userRouter } from './user.route.js';

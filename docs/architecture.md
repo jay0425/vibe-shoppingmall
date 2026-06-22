@@ -9,13 +9,24 @@ client - Frontend
 4. 서버와 프론트 연결 로직
 5. 테스트
 
-# 유저 스키마
+# 스키마
+
+## 유저 스키마
 
 email 필수
 name 필수
 password 필수
 user_type 필수, customer (customer, admin)
 address 필수 아님
+
+## 상품 스키마
+
+sku (상품 id값. 유니크해야 함.)
+상품 이름
+상품가격
+카테고리 (상의, 하의, 액세서리)
+이미지 => cloudinary (이미지를 string 값으로)
+설명 필수값 아님
 
 ## 로그인
 
@@ -29,3 +40,5 @@ address 필수 아님
 7. fe - 페이지 디자인
 8. 서버와 프론트 연결 로직
 9. 테스트
+
+##

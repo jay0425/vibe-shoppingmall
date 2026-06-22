@@ -8,3 +8,12 @@ export {
   updateUserData,
   type UserPayload,
 } from './user.service.js';
+export {
+  createProductData,
+  deleteProductData,
+  getProductById,
+  getProductBySku,
+  getProductList,
+  updateProductData,
+  type ProductPayload,
+} from './product.service.js';
