@@ -8,3 +8,10 @@ export {
   loginUser,
   updateUser,
 } from './user.controller.js';
+export {
+  createProduct,
+  deleteProduct,
+  getProduct,
+  getProducts,
+  updateProduct,
+} from './product.controller.js';

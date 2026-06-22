@@ -5,7 +5,7 @@ import morgan from 'morgan';
 
 import { env } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
-import { healthRouter, userRouter } from './routes/index.js';
+import { healthRouter, productRouter, userRouter } from './routes/index.js';
 
 export const createApp = () => {
   const app = express();
@@ -23,6 +23,7 @@ export const createApp = () => {
 
   app.use('/health', healthRouter);
   app.use('/api/health', healthRouter);
+  app.use('/api/products', productRouter);
   app.use('/api/users', userRouter);
 
   app.use(notFoundHandler);
