@@ -3,22 +3,76 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ProductCard } from '@/components/ProductCard';
 import { ProductDetail } from '@/components/ProductDetail';
-import { getProduct, products } from '@/lib/data';
+import type { Product } from '@/lib/data';
+import { ApiError, httpClient } from '@/shared/api';
 
-export function generateStaticParams() {
-  return products.map((p) => ({ id: p.id }));
+type ApiProduct = {
+  id: string;
+  sku: string;
+  name: string;
+  price: number;
+  category: string;
+  image: string;
+  description?: string | null;
+};
+
+type ProductListResponse = {
+  items: ApiProduct[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+function toProduct(product: ApiProduct): Product {
+  const description = product.description ?? '';
+
+  return {
+    id: product.id,
+    name: product.name,
+    englishName: product.sku,
+    price: product.price,
+    category: product.category,
+    image: product.image,
+    colors: ['기본'],
+    sizes: ['FREE'],
+    description,
+    detail: description || `${product.name} 상품 상세 정보입니다.`,
+    stock: 0,
+  };
+}
+
+async function getProduct(id: string) {
+  try {
+    const product = await httpClient<ApiProduct>(`/api/products/${id}`, {
+      cache: 'no-store',
+    });
+
+    return toProduct(product);
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 400 || error.status === 404)) {
+      notFound();
+    }
+
+    throw error;
+  }
+}
+
+async function getRecommendedProducts(currentProduct: Product) {
+  const response = await httpClient<ProductListResponse>('/api/products?page=1&limit=8', {
+    cache: 'no-store',
+  });
+
+  const products = response.items.map(toProduct).filter((product) => product.id !== currentProduct.id);
+  const sameCategory = products.filter((product) => product.category === currentProduct.category);
+
+  return (sameCategory.length >= 2 ? sameCategory : products).slice(0, 4);
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = getProduct(id);
-  if (!product) notFound();
-
-  const related = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-  const fallback = products.filter((p) => p.id !== product.id).slice(0, 4);
-  const recommend = related.length >= 2 ? related : fallback;
+  const product = await getProduct(id);
+  const recommend = await getRecommendedProducts(product);
 
   return (
     <div className="min-h-screen bg-background">
