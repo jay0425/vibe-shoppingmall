@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 import { CartProvider } from '@/components/CartProvider';
+import { PortOneProvider } from '@/providers/PortOneProvider';
 import { QueryProvider } from '@/providers';
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className="bg-background">
       <body className="font-sans antialiased">
+        <PortOneProvider />
         <QueryProvider>
           <CartProvider>{children}</CartProvider>
         </QueryProvider>

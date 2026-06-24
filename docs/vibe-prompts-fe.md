@@ -64,3 +64,10 @@ client/src/app/signup/page.tsx
 ## 장바구니
 
 1. cart 페이지에 cart API 연결해줘
+
+## 주문
+
+1. 주문 API 연결해줘
+2. (포트원 주소 복붙함)
+3. IMP.init을 이용해 포트원 결제 모듈 초기화 코드를 추가해줘 참고로 내 고객사 식별코드는 <~~> 야
+4. client/src/app/checkout/page.tsx: PortOne V2 (inicis_v2) 방식으로 결제 연동해줘. PortOne.requestPayment() 를 이용해서 결제 코드 수정해줘.
