@@ -60,3 +60,7 @@ client/src/app/signup/page.tsx
 5. client/src/app/admin/products/page.tsx : 페이지네이션 버튼을 추가해서 페이지네이션 기능을 붙여 만들고 싶어. 한 페이지당 10 개씩 데이터 조회 시키고 싶어.
    페이지네이션 ui 컴포넌트 따로 파일분리해서 만들어 주고 그걸 가져다 이 페이지에서 조회 API 연결해서 10개 씩 보이게끔 만들어줘
 6. client/src/app/products/[id]/page.tsx : 상품 조회 API 연결해줘
+
+## 장바구니
+
+1. cart 페이지에 cart API 연결해줘

@@ -9,7 +9,7 @@ import { useCart } from '@/components/CartProvider';
 import { formatPrice } from '@/lib/data';
 
 export default function CartPage() {
-  const { items, removeItem, updateQty, subtotal, count } = useCart();
+  const { errorMessage, isLoading, items, removeItem, updateQty, subtotal, count } = useCart();
   const shipping = subtotal >= 50000 || subtotal === 0 ? 0 : 3000;
   const total = subtotal + shipping;
 
@@ -20,7 +20,17 @@ export default function CartPage() {
         <h1 className="font-heading text-3xl text-foreground">장바구니</h1>
         <p className="mt-1 text-sm text-muted-foreground">담긴 상품 {count}개</p>
 
-        {items.length === 0 ? (
+        {errorMessage && (
+          <p className="mt-4 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {errorMessage}
+          </p>
+        )}
+
+        {isLoading ? (
+          <div className="mt-16 py-16 text-center text-sm text-muted-foreground">
+            장바구니를 불러오는 중입니다.
+          </div>
+        ) : items.length === 0 ? (
           <div className="mt-16 flex flex-col items-center gap-4 py-16 text-center">
             <ShoppingBag className="size-12 text-muted-foreground" />
             <p className="text-muted-foreground">장바구니가 비어 있습니다.</p>
