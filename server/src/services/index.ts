@@ -1,3 +1,12 @@
+export {
+  addCartItemData,
+  clearCartData,
+  deleteCartItemData,
+  getCartByUserId,
+  getOrCreateCartByUserId,
+  updateCartItemQuantityData,
+  type CartItemPayload,
+} from './cart.service.js';
 export { getHealthStatus } from './health.service.js';
 export {
   createUserData,

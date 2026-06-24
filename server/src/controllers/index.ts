@@ -1,3 +1,12 @@
+// controllers : 기능들만 작성
+
+export {
+  addCartItem,
+  clearCart,
+  deleteCartItem,
+  getCart,
+  updateCartItem,
+} from './cart.controller.js';
 export { getHealth } from './health.controller.js';
 export {
   createUser,
