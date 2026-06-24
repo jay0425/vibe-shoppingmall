@@ -4,7 +4,52 @@ import { ArrowRight } from '@/lib/lucide-react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ProductCard } from '@/components/ProductCard';
-import { categories, products } from '@/lib/data';
+import { categories, type Product } from '@/lib/data';
+import { httpClient } from '@/shared/api';
+
+type ApiProduct = {
+  id: string;
+  sku: string;
+  name: string;
+  price: number;
+  category: string;
+  image: string;
+  description?: string | null;
+};
+
+type ProductListResponse = {
+  items: ApiProduct[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+function toProduct(product: ApiProduct): Product {
+  const description = product.description ?? '';
+
+  return {
+    id: product.id,
+    name: product.name,
+    englishName: product.sku,
+    price: product.price,
+    category: product.category,
+    image: product.image,
+    colors: ['기본'],
+    sizes: ['FREE'],
+    description,
+    detail: description || `${product.name} 상품 상세 정보입니다.`,
+    stock: 0,
+  };
+}
+
+async function getProducts() {
+  const response = await httpClient<ProductListResponse>('/api/products?page=1&limit=100', {
+    cache: 'no-store',
+  });
+
+  return response.items.map(toProduct);
+}
 
 export default async function HomePage({
   searchParams,
@@ -12,6 +57,7 @@ export default async function HomePage({
   searchParams: Promise<{ category?: string }>;
 }) {
   const { category = 'all' } = await searchParams;
+  const products = await getProducts();
 
   const filtered = products.filter((p) => {
     if (category === 'all') return true;
