@@ -1,3 +1,10 @@
+export {
+  addCartItem,
+  clearCart,
+  deleteCartItem,
+  getCart,
+  updateCartItem,
+} from './cart.controller.js';
 export { getHealth } from './health.controller.js';
 export {
   createUser,
