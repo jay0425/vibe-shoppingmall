@@ -19,8 +19,8 @@ export function ProductDetail({ product }: { product: Product }) {
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0;
 
-  function handleAdd(goCart: boolean) {
-    addItem({
+  async function handleAdd(goCart: boolean) {
+    await addItem({
       productId: product.id,
       name: product.name,
       image: product.image,

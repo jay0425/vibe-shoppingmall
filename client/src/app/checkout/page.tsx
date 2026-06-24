@@ -18,11 +18,11 @@ export default function CheckoutPage() {
   const [pay, setPay] = useState(payMethods[0]);
   const [agree, setAgree] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!agree) return;
     const orderId = '20260617-' + Math.floor(1000 + Math.random() * 9000).toString();
-    clear();
+    await clear();
     router.push(`/order-complete?id=${orderId}&total=${total}`);
   }
 
