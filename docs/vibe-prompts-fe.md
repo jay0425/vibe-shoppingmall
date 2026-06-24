@@ -64,3 +64,7 @@ client/src/app/signup/page.tsx
 ## 장바구니
 
 1. cart 페이지에 cart API 연결해줘
+
+## 주문
+
+1. 주문 API 연결해줘
