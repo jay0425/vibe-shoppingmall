@@ -68,3 +68,6 @@ client/src/app/signup/page.tsx
 ## 주문
 
 1. 주문 API 연결해줘
+2. (포트원 주소 복붙함)
+3. IMP.init을 이용해 포트원 결제 모듈 초기화 코드를 추가해줘 참고로 내 고객사 식별코드는 <~~> 야
+4. client/src/app/checkout/page.tsx: 결제하기 버튼 클릭 시 IMP.request_pay를 이용해서 결제 진행되게 코드 수정해줘

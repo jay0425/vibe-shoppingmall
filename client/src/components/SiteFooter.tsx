@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-4 md:px-6">
         <div className="md:col-span-1">
           <span className="font-heading text-2xl tracking-tight text-foreground">
-            milk<span className="text-accent-foreground">cocoa</span>
+            wear<span className="text-accent-foreground">joy</span>
           </span>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             매일의 무드를 완성하는

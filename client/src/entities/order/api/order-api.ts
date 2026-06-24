@@ -29,6 +29,17 @@ export type Order = {
   updatedAt?: string;
 };
 
+export type CreateOrderPayload = {
+  shippingAddress: {
+    recipient: string;
+    phone: string;
+    address1: string;
+    address2?: string;
+    memo?: string;
+  };
+  paymentMethod: string;
+};
+
 const authHeaders = (accessToken: string) => ({
   Authorization: `Bearer ${accessToken}`,
 });
@@ -36,4 +47,11 @@ const authHeaders = (accessToken: string) => ({
 export const getOrders = (accessToken: string): Promise<Order[]> =>
   httpClient<Order[]>('/api/orders', {
     headers: authHeaders(accessToken),
+  });
+
+export const createOrder = (accessToken: string, payload: CreateOrderPayload): Promise<Order> =>
+  httpClient<Order>('/api/orders', {
+    method: 'POST',
+    headers: authHeaders(accessToken),
+    body: payload,
   });
