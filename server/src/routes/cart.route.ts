@@ -7,8 +7,11 @@ import {
   getCart,
   updateCartItem,
 } from '../controllers/index.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 
 export const cartRouter = Router();
+
+cartRouter.use(authenticate);
 
 cartRouter.get('/:userId', getCart);
 cartRouter.post('/:userId/items', addCartItem);

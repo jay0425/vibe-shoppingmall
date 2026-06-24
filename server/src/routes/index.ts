@@ -1,3 +1,5 @@
+// routes : 주소값만 작성
+
 export { cartRouter } from './cart.route.js';
 export { healthRouter } from './health.route.js';
 export { productRouter } from './product.route.js';

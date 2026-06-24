@@ -19,6 +19,16 @@ const validateObjectId = (id: string, fieldLabel: string) => {
   }
 };
 
+const validateCartAccess = (authenticatedUserId: string | undefined, targetUserId: string) => {
+  if (!authenticatedUserId) {
+    throw new HttpError(401, '인증이 필요합니다.');
+  }
+
+  if (authenticatedUserId !== targetUserId) {
+    throw new HttpError(403, '다른 사용자의 장바구니에 접근할 수 없습니다.');
+  }
+};
+
 const normalizeQuantity = (value: unknown, defaultValue = 1): number => {
   if (value === undefined) {
     return defaultValue;
@@ -67,6 +77,7 @@ const serializeCart = (cart: {
 
 export const getCart: RequestHandler = asyncHandler(async (req, res) => {
   validateObjectId(req.params.userId, '사용자 ID');
+  validateCartAccess(req.user?.id, req.params.userId);
 
   const cart = await getOrCreateCartByUserId(req.params.userId);
   res.json(serializeCart(cart));
@@ -74,6 +85,7 @@ export const getCart: RequestHandler = asyncHandler(async (req, res) => {
 
 export const addCartItem: RequestHandler = asyncHandler(async (req, res) => {
   validateObjectId(req.params.userId, '사용자 ID');
+  validateCartAccess(req.user?.id, req.params.userId);
 
   if (!isRecord(req.body)) {
     throw new HttpError(400, '요청 본문이 올바르지 않습니다.');
@@ -99,6 +111,7 @@ export const addCartItem: RequestHandler = asyncHandler(async (req, res) => {
 
 export const updateCartItem: RequestHandler = asyncHandler(async (req, res) => {
   validateObjectId(req.params.userId, '사용자 ID');
+  validateCartAccess(req.user?.id, req.params.userId);
   validateObjectId(req.params.productId, '상품 ID');
 
   if (!isRecord(req.body)) {
@@ -120,6 +133,7 @@ export const updateCartItem: RequestHandler = asyncHandler(async (req, res) => {
 
 export const deleteCartItem: RequestHandler = asyncHandler(async (req, res) => {
   validateObjectId(req.params.userId, '사용자 ID');
+  validateCartAccess(req.user?.id, req.params.userId);
   validateObjectId(req.params.productId, '상품 ID');
 
   const cart = await deleteCartItemData(req.params.userId, req.params.productId);
@@ -132,6 +146,7 @@ export const deleteCartItem: RequestHandler = asyncHandler(async (req, res) => {
 
 export const clearCart: RequestHandler = asyncHandler(async (req, res) => {
   validateObjectId(req.params.userId, '사용자 ID');
+  validateCartAccess(req.user?.id, req.params.userId);
 
   const cart = await clearCartData(req.params.userId);
   if (!cart) {
