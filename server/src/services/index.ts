@@ -9,6 +9,13 @@ export {
 } from './cart.service.js';
 export { getHealthStatus } from './health.service.js';
 export {
+  createOrderData,
+  getOrderById,
+  getOrderListByUserId,
+  type CreateOrderPayload,
+  type ShippingAddressPayload,
+} from './order.service.js';
+export {
   createUserData,
   deleteUserData,
   getUserById,
