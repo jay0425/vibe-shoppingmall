@@ -8,6 +8,7 @@ export {
   updateCartItem,
 } from './cart.controller.js';
 export { getHealth } from './health.controller.js';
+export { createOrder, getOrder, getOrders } from './order.controller.js';
 export {
   createUser,
   deleteUser,
