@@ -128,7 +128,7 @@ const createOrderFingerprint = (
     .sort()
     .join('|');
 
-const serializeOrder = (order: {
+export const serializeOrder = (order: {
   _id: unknown;
   orderNumber: string;
   user: unknown;

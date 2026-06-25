@@ -10,10 +10,12 @@ export {
 export { getHealthStatus } from './health.service.js';
 export {
   createOrderData,
+  getAdminOrderList,
   getOrderById,
   getOrderByPaymentKey,
   getOrderListByUserId,
   getRecentActiveOrderList,
+  type AdminOrderListQuery,
   type CreateOrderPayload,
   type ShippingAddressPayload,
 } from './order.service.js';

@@ -45,3 +45,9 @@ sku (상품 id값. 유니크해야 함.)
 2. 각각 어떤 필드들인지 주석 설명 달아줘
 3. 이 스키마를 참고해서 주문 라우터, 컨트롤러 추가해줘
 4. server/src/controllers/order.controller.ts : 주문 생성 전 주문 중복 여부 체크, 결제 검증 등을 하는 로직 추가해줘
+
+### 관리자 주문 내역 조회
+
+1. server/src/controllers
+
+admin에서 주문 조회를 할 수 있는 컨트롤러, 라우터를 만들어줘

@@ -31,6 +31,15 @@ export type CreateOrderPayload = {
   total: number;
 };
 
+export type AdminOrderListQuery = {
+  status?: string;
+  paymentStatus?: string;
+  userId?: string;
+  orderNumber?: string;
+  page: number;
+  limit: number;
+};
+
 const createOrderNumber = () => {
   const now = new Date();
   const date = [
@@ -52,6 +61,37 @@ export const getOrderListByUserId = async (userId: string) =>
   OrderModel.find({ user: userId }).sort({ createdAt: -1 });
 
 export const getOrderById = async (id: string) => OrderModel.findById(id);
+
+export const getAdminOrderList = async ({
+  status,
+  paymentStatus,
+  userId,
+  orderNumber,
+  page,
+  limit,
+}: AdminOrderListQuery) => {
+  const filter = {
+    ...(status ? { status } : {}),
+    ...(paymentStatus ? { paymentStatus } : {}),
+    ...(userId ? { user: userId } : {}),
+    ...(orderNumber ? { orderNumber } : {}),
+  };
+  const skip = (page - 1) * limit;
+  const [orders, totalCount] = await Promise.all([
+    OrderModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    OrderModel.countDocuments(filter),
+  ]);
+
+  return {
+    orders,
+    pagination: {
+      page,
+      limit,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+    },
+  };
+};
 
 export const getOrderByPaymentKey = async (userId: string, paymentKey: string) =>
   OrderModel.findOne({ user: userId, paymentKey });

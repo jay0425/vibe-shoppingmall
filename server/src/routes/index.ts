@@ -1,5 +1,6 @@
 // routes : 주소값만 작성
 
+export { adminOrderRouter } from './admin-order.route.js';
 export { cartRouter } from './cart.route.js';
 export { healthRouter } from './health.route.js';
 export { orderRouter } from './order.route.js';
