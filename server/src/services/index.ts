@@ -11,10 +11,13 @@ export { getHealthStatus } from './health.service.js';
 export {
   createOrderData,
   getOrderById,
+  getOrderByPaymentKey,
   getOrderListByUserId,
+  getRecentActiveOrderList,
   type CreateOrderPayload,
   type ShippingAddressPayload,
 } from './order.service.js';
+export { verifyPortonePayment } from './payment.service.js';
 export {
   createUserData,
   deleteUserData,

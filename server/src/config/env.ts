@@ -8,6 +8,8 @@ type Env = {
   mongoUri: string;
   corsOrigins: string[];
   jwtSecret: string;
+  portoneStoreId: string;
+  portoneApiSecret: string;
 };
 
 const parsePort = (value: string | undefined): number => {
@@ -64,4 +66,6 @@ export const env: Env = {
   mongoUri: requireEnv('MONGODB_URI'),
   corsOrigins: parseCorsOrigins(requireEnv('CORS_ORIGIN')),
   jwtSecret: parseJwtSecret(requireEnv('JWT_SECRET')),
+  portoneStoreId: requireEnv('PORTONE_STORE_ID'),
+  portoneApiSecret: requireEnv('PORTONE_API_SECRET'),
 };

@@ -23,6 +23,9 @@ export type CreateOrderPayload = {
   items: OrderItemPayload[];
   shippingAddress: ShippingAddressPayload;
   paymentMethod: string;
+  paymentKey: string;
+  paymentAmount: number;
+  paymentTransactionId?: string;
   subtotal: number;
   shippingFee: number;
   total: number;
@@ -49,6 +52,18 @@ export const getOrderListByUserId = async (userId: string) =>
   OrderModel.find({ user: userId }).sort({ createdAt: -1 });
 
 export const getOrderById = async (id: string) => OrderModel.findById(id);
+
+export const getOrderByPaymentKey = async (userId: string, paymentKey: string) =>
+  OrderModel.findOne({ user: userId, paymentKey });
+
+export const getRecentActiveOrderList = async (userId: string, since: Date, total: number) =>
+  OrderModel.find({
+    user: userId,
+    total,
+    paymentStatus: { $in: ['pending', 'paid'] },
+    status: { $ne: 'cancelled' },
+    createdAt: { $gte: since },
+  }).sort({ createdAt: -1 });
 
 export const createOrderData = async (payload: CreateOrderPayload) =>
   OrderModel.create({

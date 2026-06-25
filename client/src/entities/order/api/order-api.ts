@@ -20,6 +20,9 @@ export type Order = {
   user: string;
   items: OrderItem[];
   paymentMethod: string;
+  paymentKey: string;
+  paymentAmount: number;
+  paymentTransactionId?: string;
   paymentStatus: PaymentStatus;
   status: OrderStatus;
   subtotal: number;
@@ -38,6 +41,11 @@ export type CreateOrderPayload = {
     memo?: string;
   };
   paymentMethod: string;
+  payment: {
+    paymentKey: string;
+    amount: number;
+    transactionId?: string;
+  };
 };
 
 const authHeaders = (accessToken: string) => ({
