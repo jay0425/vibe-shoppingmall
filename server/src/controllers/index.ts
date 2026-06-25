@@ -1,5 +1,6 @@
 // controllers : 기능들만 작성
 
+export { getAdminOrder, getAdminOrders } from './admin-order.controller.js';
 export {
   addCartItem,
   clearCart,
