@@ -131,6 +131,23 @@ const orderSchema = new Schema(
       required: true,
       trim: true,
     },
+    // 결제사에서 발급/사용한 결제 식별자
+    paymentKey: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    // 결제 승인 또는 요청 금액
+    paymentAmount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    // 결제사 거래 식별자
+    paymentTransactionId: {
+      type: String,
+      trim: true,
+    },
     // 결제 처리 상태
     paymentStatus: {
       type: String,
@@ -172,6 +189,7 @@ const orderSchema = new Schema(
 
 orderSchema.index({ user: 1, createdAt: -1 });
 orderSchema.index({ orderNumber: 1 });
+orderSchema.index({ paymentKey: 1 }, { unique: true });
 
 export type Order = InferSchemaType<typeof orderSchema>;
 

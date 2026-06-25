@@ -16,6 +16,8 @@ pnpm dev
 - `MONGODB_URI`: MongoDB 접속 문자열
 - `CORS_ORIGIN`: 허용할 클라이언트 origin. 여러 개면 쉼표로 구분
 - `JWT_SECRET`: JWT 서명용 비밀값. 32자 이상 권장
+- `PORTONE_STORE_ID`: 포트원 V2 상점 ID
+- `PORTONE_API_SECRET`: 포트원 V2 REST API Secret
 
 ## 스크립트
 

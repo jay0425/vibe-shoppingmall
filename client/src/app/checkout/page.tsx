@@ -105,7 +105,10 @@ export default function CheckoutPage() {
       throw new Error(paymentResponse.message ?? '결제가 취소되었거나 실패했습니다.');
     }
 
-    return paymentResponse;
+    return {
+      paymentKey: paymentResponse.paymentId ?? merchantUid,
+      transactionId: paymentResponse.txId,
+    };
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -129,22 +132,28 @@ export default function CheckoutPage() {
 
     const formData = new FormData(e.currentTarget);
 
-    const orderPayload: CreateOrderPayload = {
-      shippingAddress: {
-        recipient: getFormValue(formData, 'recipient'),
-        phone: getFormValue(formData, 'phone'),
-        address1: getFormValue(formData, 'address1'),
-        address2: getFormValue(formData, 'address2') || undefined,
-        memo: getFormValue(formData, 'memo') || undefined,
-      },
-      paymentMethod: pay,
-    };
-
     try {
-      await requestPayment({
+      const merchantUid = createMerchantUid();
+      const payment = await requestPayment({
         formData,
-        merchantUid: createMerchantUid(),
+        merchantUid,
       });
+
+      const orderPayload: CreateOrderPayload = {
+        shippingAddress: {
+          recipient: getFormValue(formData, 'recipient'),
+          phone: getFormValue(formData, 'phone'),
+          address1: getFormValue(formData, 'address1'),
+          address2: getFormValue(formData, 'address2') || undefined,
+          memo: getFormValue(formData, 'memo') || undefined,
+        },
+        paymentMethod: pay,
+        payment: {
+          paymentKey: payment.paymentKey,
+          amount: total,
+          transactionId: payment.transactionId,
+        },
+      };
 
       const order = await createOrder(session.accessToken, orderPayload);
 
