@@ -19,7 +19,6 @@ export function ResponsiveContainer({
 
 export function AreaChart({
   data,
-  children,
 }: {
   data: ChartData[];
   margin?: Record<string, number>;
@@ -52,7 +51,6 @@ export function AreaChart({
           <span key={String(item.day)}>{item.day}</span>
         ))}
       </div>
-      <div className="sr-only">{children}</div>
     </div>
   );
 }

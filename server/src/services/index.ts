@@ -15,6 +15,7 @@ export {
   getOrderByPaymentKey,
   getOrderListByUserId,
   getRecentActiveOrderList,
+  updateOrderStatusData,
   type AdminOrderListQuery,
   type CreateOrderPayload,
   type ShippingAddressPayload,

@@ -13,7 +13,7 @@ pnpm dev
 
 `.env`에는 다음 값을 설정해야 합니다.
 
-- `MONGODB_URI`: MongoDB 접속 문자열
+- `MONGODB_URI_TEST`: MongoDB 접속 문자열. 없으면 `mongodb://127.0.0.1:27017/shopping-mall` 사용
 - `CORS_ORIGIN`: 허용할 클라이언트 origin. 여러 개면 쉼표로 구분
 - `JWT_SECRET`: JWT 서명용 비밀값. 32자 이상 권장
 - `PORTONE_STORE_ID`: 포트원 V2 상점 ID

@@ -12,10 +12,12 @@ export function OrderDetailModal({
   order,
   onClose,
   onStatusChange,
+  errorMessage,
 }: {
   order: Order;
   onClose: () => void;
-  onStatusChange: (id: string, status: OrderStatus) => void;
+  onStatusChange: (id: string, status: OrderStatus) => void | Promise<void>;
+  errorMessage?: string;
 }) {
   return (
     <div
@@ -107,6 +109,7 @@ export function OrderDetailModal({
                 </option>
               ))}
             </select>
+            {errorMessage && <p className="mt-2 text-xs text-destructive">{errorMessage}</p>}
           </section>
         </div>
 

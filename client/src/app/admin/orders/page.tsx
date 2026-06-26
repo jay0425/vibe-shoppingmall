@@ -5,7 +5,12 @@ import { Eye, Search } from '@/lib/lucide-react';
 import { AdminTopbar } from '@/components/admin/AdminTopbar';
 import { StatusBadge } from '@/components/StatusBadge';
 import { OrderDetailModal } from '@/components/admin/OrderDetailModal';
-import { getAdminOrders, type Order as ApiOrder, type OrderStatus as ApiOrderStatus } from '@/entities/order';
+import {
+  getAdminOrders,
+  updateAdminOrderStatus,
+  type Order as ApiOrder,
+  type OrderStatus as ApiOrderStatus,
+} from '@/entities/order';
 import { useAuthStore } from '@/entities/user';
 import { type Order, type OrderStatus, formatPrice } from '@/lib/data';
 
@@ -25,6 +30,14 @@ const statusLabels: Record<ApiOrderStatus, OrderStatus> = {
   shipping: '배송중',
   delivered: '배송완료',
   cancelled: '취소',
+};
+
+const apiStatuses: Record<OrderStatus, ApiOrderStatus> = {
+  결제완료: 'paid',
+  배송준비: 'preparing',
+  배송중: 'shipping',
+  배송완료: 'delivered',
+  취소: 'cancelled',
 };
 
 function formatDate(value?: string) {
@@ -73,6 +86,7 @@ export default function AdminOrdersPage() {
   const [selected, setSelected] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [statusErrorMessage, setStatusErrorMessage] = useState('');
   const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
@@ -137,9 +151,36 @@ export default function AdminOrdersPage() {
     return matchStatus && matchQuery;
   });
 
-  function handleStatusChange(id: string, status: OrderStatus) {
+  async function handleStatusChange(id: string, status: OrderStatus) {
+    if (!session) {
+      setStatusErrorMessage('관리자 로그인 후 주문 상태를 변경할 수 있습니다.');
+      return;
+    }
+
+    const previousOrder = orders.find((order) => order.id === id);
+
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
     setSelected((prev) => (prev && prev.id === id ? { ...prev, status } : prev));
+    setStatusErrorMessage('');
+
+    try {
+      const updatedOrder = await updateAdminOrderStatus(session.accessToken, id, {
+        status: apiStatuses[status],
+      });
+      const updatedDisplayOrder = toDisplayOrder(updatedOrder);
+
+      setOrders((prev) => prev.map((o) => (o.id === id ? updatedDisplayOrder : o)));
+      setSelected((prev) => (prev && prev.id === id ? updatedDisplayOrder : prev));
+    } catch (error) {
+      if (previousOrder) {
+        setOrders((prev) => prev.map((o) => (o.id === id ? previousOrder : o)));
+        setSelected((prev) => (prev && prev.id === id ? previousOrder : prev));
+      }
+
+      setStatusErrorMessage(
+        error instanceof Error ? error.message : '주문 상태를 변경하지 못했습니다.',
+      );
+    }
   }
 
   return (
@@ -251,6 +292,7 @@ export default function AdminOrdersPage() {
           order={selected}
           onClose={() => setSelected(null)}
           onStatusChange={handleStatusChange}
+          errorMessage={statusErrorMessage}
         />
       )}
     </>

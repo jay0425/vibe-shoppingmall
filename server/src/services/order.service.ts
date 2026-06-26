@@ -96,6 +96,9 @@ export const getAdminOrderList = async ({
 export const getOrderByPaymentKey = async (userId: string, paymentKey: string) =>
   OrderModel.findOne({ user: userId, paymentKey });
 
+export const updateOrderStatusData = async (orderNumber: string, status: string) =>
+  OrderModel.findOneAndUpdate({ orderNumber }, { status }, { new: true, runValidators: true });
+
 export const getRecentActiveOrderList = async (userId: string, since: Date, total: number) =>
   OrderModel.find({
     user: userId,

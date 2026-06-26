@@ -1,0 +1,1 @@
+web: pnpm --filter shopping-mall-server start

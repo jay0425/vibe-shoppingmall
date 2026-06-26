@@ -65,15 +65,15 @@ export function LoginForm() {
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <label htmlFor="email" className="text-sm font-medium">
-            이메일
+            이메일 또는 관리자 ID
           </label>
           <input
             id="email"
-            type="email"
+            type="text"
             required
             value={form.email}
             onChange={(e) => update('email', e.target.value)}
-            placeholder="you@example.com"
+            placeholder="you@example.com 또는 admin"
             className="h-11 rounded-md border border-input bg-card px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
             aria-invalid={Boolean(errors.email)}
             aria-describedby={errors.email ? 'email-error' : undefined}
