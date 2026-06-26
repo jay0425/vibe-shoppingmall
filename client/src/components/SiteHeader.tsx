@@ -12,8 +12,8 @@ import { useLogout } from '@/features/logout';
 export function SiteHeader() {
   const { count } = useCart();
   const [open, setOpen] = useState(false);
-  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
-  const adminMenuRef = useRef<HTMLDivElement>(null);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
   const session = useAuthStore((state) => state.session);
   const hydrateAuth = useAuthStore((state) => state.hydrateAuth);
   const logout = useLogout();
@@ -31,17 +31,17 @@ export function SiteHeader() {
   }, [hydrateAuth]);
 
   useEffect(() => {
-    if (!adminMenuOpen) return;
+    if (!accountMenuOpen) return;
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!adminMenuRef.current?.contains(event.target as Node)) {
-        setAdminMenuOpen(false);
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setAccountMenuOpen(false);
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setAdminMenuOpen(false);
+        setAccountMenuOpen(false);
       }
     };
 
@@ -52,7 +52,7 @@ export function SiteHeader() {
       document.removeEventListener('pointerdown', handlePointerDown);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [adminMenuOpen]);
+  }, [accountMenuOpen]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
@@ -85,29 +85,31 @@ export function SiteHeader() {
         <div className="flex items-center gap-3 text-foreground">
           {session ? (
             <>
-              {displayName && isAdmin ? (
-                <div ref={adminMenuRef} className="relative hidden lg:block">
+              {displayName ? (
+                <div ref={accountMenuRef} className="relative hidden lg:block">
                   <button
                     type="button"
-                    onClick={() => setAdminMenuOpen((v) => !v)}
-                    aria-expanded={adminMenuOpen}
+                    onClick={() => setAccountMenuOpen((v) => !v)}
+                    aria-expanded={accountMenuOpen}
                     className="max-w-40 cursor-pointer truncate text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {displayName}님 반갑습니다.
                   </button>
-                  {adminMenuOpen && (
+                  {accountMenuOpen && (
                     <div className="absolute right-0 top-full mt-3 w-40 overflow-hidden rounded-md border border-border bg-background py-1 shadow-lg">
-                      <Link
-                        href="/admin"
-                        onClick={() => setAdminMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary"
-                      >
-                        관리자 페이지
-                      </Link>
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary"
+                        >
+                          관리자 페이지
+                        </Link>
+                      )}
                       <button
                         type="button"
                         onClick={() => {
-                          setAdminMenuOpen(false);
+                          setAccountMenuOpen(false);
                           logout();
                         }}
                         className="block w-full px-4 py-2 text-left text-sm text-foreground transition-colors hover:bg-secondary"
@@ -117,10 +119,6 @@ export function SiteHeader() {
                     </div>
                   )}
                 </div>
-              ) : displayName ? (
-                <span className="hidden max-w-40 truncate text-sm text-muted-foreground lg:block">
-                  {displayName}님 반갑습니다.
-                </span>
               ) : null}
             </>
           ) : (
