@@ -11,7 +11,7 @@ export default function LoginPage() {
           <div className="mb-8 text-center">
             <h1 className="font-heading text-3xl tracking-tight">로그인</h1>
             <p className="mt-2 text-sm text-muted-foreground text-pretty">
-              밀크코코아에 다시 오신 걸 환영해요
+              웨어조이에 다시 오신 걸 환영해요
             </p>
           </div>
 

@@ -20,6 +20,8 @@ const statusLabels: Record<OrderStatus, DisplayOrderStatus> = {
   cancelled: '취소',
 };
 
+const ORDER_REFRESH_INTERVAL_MS = 30_000;
+
 function formatDate(value?: string) {
   if (!value) {
     return '-';
@@ -54,8 +56,10 @@ export default function OrdersPage() {
     const currentSession = session;
     let isMounted = true;
 
-    async function loadOrders() {
-      setIsLoading(true);
+    async function loadOrders({ showLoading = false } = {}) {
+      if (showLoading) {
+        setIsLoading(true);
+      }
       setErrorMessage('');
 
       try {
@@ -75,10 +79,23 @@ export default function OrdersPage() {
       }
     }
 
-    void loadOrders();
+    void loadOrders({ showLoading: true });
+
+    const refreshOrders = () => {
+      if (document.visibilityState === 'visible') {
+        void loadOrders();
+      }
+    };
+
+    window.addEventListener('focus', refreshOrders);
+    document.addEventListener('visibilitychange', refreshOrders);
+    const refreshInterval = window.setInterval(refreshOrders, ORDER_REFRESH_INTERVAL_MS);
 
     return () => {
       isMounted = false;
+      window.removeEventListener('focus', refreshOrders);
+      document.removeEventListener('visibilitychange', refreshOrders);
+      window.clearInterval(refreshInterval);
     };
   }, [session]);
 

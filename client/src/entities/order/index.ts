@@ -2,6 +2,7 @@ export {
   createOrder,
   getAdminOrders,
   getOrders,
+  updateAdminOrderStatus,
   type AdminOrdersParams,
   type AdminOrdersResponse,
   type CreateOrderPayload,
@@ -9,4 +10,5 @@ export {
   type OrderItem,
   type OrderStatus,
   type PaymentStatus,
+  type UpdateAdminOrderStatusPayload,
 } from './api';

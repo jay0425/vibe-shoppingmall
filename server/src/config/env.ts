@@ -59,11 +59,12 @@ const parseJwtSecret = (value: string): string => {
 };
 
 const nodeEnv = parseNodeEnv(process.env.NODE_ENV);
+const defaultMongoUri = 'mongodb://127.0.0.1:27017/shopping-mall';
 
 export const env: Env = {
   nodeEnv,
   port: parsePort(process.env.PORT),
-  mongoUri: requireEnv('MONGODB_URI'),
+  mongoUri: process.env.MONGODB_URI_TEST ?? defaultMongoUri,
   corsOrigins: parseCorsOrigins(requireEnv('CORS_ORIGIN')),
   jwtSecret: parseJwtSecret(requireEnv('JWT_SECRET')),
   portoneStoreId: requireEnv('PORTONE_STORE_ID'),

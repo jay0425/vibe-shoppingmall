@@ -76,6 +76,10 @@ export type AdminOrdersResponse = {
   };
 };
 
+export type UpdateAdminOrderStatusPayload = {
+  status: OrderStatus;
+};
+
 const authHeaders = (accessToken: string) => ({
   Authorization: `Bearer ${accessToken}`,
 });
@@ -104,6 +108,17 @@ export const getAdminOrders = (
 ): Promise<AdminOrdersResponse> =>
   httpClient<AdminOrdersResponse>(`/api/admin/orders${toSearchParams(params)}`, {
     headers: authHeaders(accessToken),
+  });
+
+export const updateAdminOrderStatus = (
+  accessToken: string,
+  orderNumber: string,
+  payload: UpdateAdminOrderStatusPayload,
+): Promise<Order> =>
+  httpClient<Order>(`/api/admin/orders/${orderNumber}/status`, {
+    method: 'PATCH',
+    headers: authHeaders(accessToken),
+    body: payload,
   });
 
 export const createOrder = (accessToken: string, payload: CreateOrderPayload): Promise<Order> =>

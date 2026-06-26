@@ -1,7 +1,8 @@
 import type { RequestHandler } from 'express';
 import { isValidObjectId } from 'mongoose';
 
-import { getAdminOrderList, getOrderById } from '../services/index.js';
+import { ORDER_STATUSES } from '../models/index.js';
+import { getAdminOrderList, getOrderById, updateOrderStatusData } from '../services/index.js';
 import { asyncHandler, HttpError } from '../utils/index.js';
 import { serializeOrder } from './order.controller.js';
 
@@ -18,6 +19,9 @@ const requireAdmin = (user: Express.Request['user']) => {
     throw new HttpError(403, '관리자만 접근할 수 있습니다.');
   }
 };
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const pickQueryString = (value: unknown, fieldLabel: string) => {
   if (value === undefined) {
@@ -69,6 +73,18 @@ const pickAdminOrderListQuery = (query: Record<string, unknown>) => {
   };
 };
 
+const pickOrderStatus = (value: unknown) => {
+  if (typeof value !== 'string') {
+    throw new HttpError(400, '주문 상태를 입력해주세요.');
+  }
+
+  if (!ORDER_STATUSES.includes(value as (typeof ORDER_STATUSES)[number])) {
+    throw new HttpError(400, '유효하지 않은 주문 상태입니다.');
+  }
+
+  return value;
+};
+
 export const getAdminOrders: RequestHandler = asyncHandler(async (req, res) => {
   requireAdmin(req.user);
 
@@ -88,6 +104,23 @@ export const getAdminOrder: RequestHandler = asyncHandler(async (req, res) => {
   }
 
   const order = await getOrderById(req.params.id);
+  if (!order) {
+    throw new HttpError(404, '주문을 찾을 수 없습니다.');
+  }
+
+  res.json(serializeOrder(order));
+});
+
+export const updateAdminOrderStatus: RequestHandler = asyncHandler(async (req, res) => {
+  requireAdmin(req.user);
+
+  if (!isRecord(req.body)) {
+    throw new HttpError(400, '요청 본문이 올바르지 않습니다.');
+  }
+
+  const status = pickOrderStatus(req.body.status);
+  const order = await updateOrderStatusData(req.params.id, status);
+
   if (!order) {
     throw new HttpError(404, '주문을 찾을 수 없습니다.');
   }
